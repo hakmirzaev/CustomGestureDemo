@@ -4,7 +4,7 @@
 
  Displays real-time finger status for both hands:
    • Extended / Curled label with color coding
-   • Curl ratio numeric value
+   • Curl ratio numeric value with info explanation
    • Pinch checkmark when thumb touches a fingertip
 */
 
@@ -53,6 +53,8 @@ private struct HandFingerColumn: View {
     let emoji: String
     let fingers: [FingerInfo]
 
+    @State private var showRatioInfo = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text("\(emoji) \(title)")
@@ -65,10 +67,27 @@ private struct HandFingerColumn: View {
             HStack(spacing: 0) {
                 Text("Finger")
                     .frame(width: 48, alignment: .leading)
+
                 Text("State")
                     .frame(width: 60, alignment: .center)
-                Text("Ratio")
-                    .frame(width: 36, alignment: .trailing)
+
+                // Ratio header with info button
+                HStack(spacing: 2) {
+                    Text("Ratio")
+                    Button {
+                        showRatioInfo.toggle()
+                    } label: {
+                        Image(systemName: "questionmark.circle")
+                            .font(.system(size: 8))
+                            .foregroundStyle(.blue)
+                    }
+                    .buttonStyle(.plain)
+                    .popover(isPresented: $showRatioInfo) {
+                        RatioInfoView()
+                    }
+                }
+                .frame(width: 46, alignment: .trailing)
+
                 Text("Pinch")
                     .frame(width: 36, alignment: .center)
             }
@@ -79,7 +98,58 @@ private struct HandFingerColumn: View {
                 FingerRow(finger: finger)
             }
         }
-        .frame(minWidth: 180)
+        .frame(minWidth: 190)
+    }
+}
+
+// MARK: - Ratio Info Popover
+
+private struct RatioInfoView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Curl Ratio Explained")
+                .font(.headline)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Thumb")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                        Text("Distance from **thumb tip** to **palm center** (middle finger knuckle), divided by hand size (**wrist** to **palm center**).")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text("< 0.75 = Curled  •  > 0.95 = Extended")
+                            .font(.caption2)
+                            .foregroundStyle(.blue)
+                    }
+                } icon: {
+                    Image(systemName: "hand.thumbsup")
+                        .foregroundStyle(.orange)
+                }
+
+                Divider()
+
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Other Fingers")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                        Text("Distance from **fingertip** to **wrist**, divided by distance from **knuckle** to **wrist**.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text("< 1.10 = Curled  •  > 1.15 = Extended")
+                            .font(.caption2)
+                            .foregroundStyle(.blue)
+                    }
+                } icon: {
+                    Image(systemName: "hand.raised.fingers.spread")
+                        .foregroundStyle(.teal)
+                }
+            }
+        }
+        .padding()
+        .frame(width: 320)
     }
 }
 
@@ -117,7 +187,7 @@ private struct FingerRow: View {
             Text(String(format: "%.2f", finger.curlRatio))
                 .font(.system(size: 9, design: .monospaced))
                 .foregroundStyle(.secondary)
-                .frame(width: 36, alignment: .trailing)
+                .frame(width: 46, alignment: .trailing)
 
             // Pinch checkmark (not applicable for thumb itself)
             if finger.id == "thumb" {

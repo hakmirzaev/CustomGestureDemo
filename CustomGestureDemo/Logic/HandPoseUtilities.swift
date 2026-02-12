@@ -55,7 +55,7 @@ enum HandPoseUtilities {
 
     /// Returns the curl ratio for a non-thumb finger: `tipDist / knuckleDist` relative to wrist.
     /// - Values **> 1.15** → extended
-    /// - Values **< 1.05** → curled
+    /// - Values **< 1.10** → curled
     static func curlRatio(
         skeleton: HandSkeleton,
         tip: HandSkeleton.JointName,
@@ -88,7 +88,7 @@ enum HandPoseUtilities {
         tip: HandSkeleton.JointName,
         knuckle: HandSkeleton.JointName,
         wrist: HandSkeleton.JointName = .wrist,
-        factor: Float = 1.05
+        factor: Float = 1.10
     ) -> Bool {
         curlRatio(skeleton: skeleton, tip: tip, knuckle: knuckle, wrist: wrist) < factor
     }

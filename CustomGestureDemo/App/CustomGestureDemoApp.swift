@@ -24,7 +24,7 @@ struct CustomGestureDemoApp: App {
             SettingsView()
                 .environment(appModel)
         }
-        .defaultSize(width: 460, height: 650)
+        .defaultSize(width: 420, height: 620)
         .defaultWindowPlacement { content, context in
             // Place the settings window to the right of the main window.
             if let mainWindow = context.windows.first {

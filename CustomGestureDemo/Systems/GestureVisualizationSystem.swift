@@ -218,7 +218,7 @@ struct GestureVisualizationSystem: System {
         }
         projectile.position = worldPos
         projectile.components.set(ProjectileComponent(
-            velocity: velocity * 1.2,
+            velocity: velocity * 2,
             initialPosition: worldPos,
             startTime: CACurrentMediaTime()
         ))
@@ -304,7 +304,7 @@ struct GestureVisualizationSystem: System {
                 curlRatio: ratio,
                 isPinching: pinching,
                 isExtended: ratio > 1.15,
-                isCurled: ratio < 1.05
+                isCurled: ratio < 1.10
             ))
         }
 
