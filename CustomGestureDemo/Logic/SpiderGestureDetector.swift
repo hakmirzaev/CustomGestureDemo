@@ -27,8 +27,6 @@ enum SpiderGestureDetector {
 
     /// Detects whether the hand skeleton matches the spider-web gesture.
     static func detect(handSkeleton: HandSkeleton) -> Bool {
-        // Thumb uses palm-relative method (different biomechanics).
-        let thumbCurled = HandPoseUtilities.isThumbCurled(skeleton: handSkeleton)
 
         // Other fingers use standard distance-ratio method.
         let indexExtended = HandPoseUtilities.isFingerExtended(
@@ -52,6 +50,6 @@ enum SpiderGestureDetector {
             knuckle: .littleFingerKnuckle
         )
 
-        return thumbCurled && indexExtended && middleCurled && ringCurled && littleExtended
+        return indexExtended && middleCurled && ringCurled && littleExtended
     }
 }

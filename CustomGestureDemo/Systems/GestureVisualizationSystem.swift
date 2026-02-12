@@ -3,14 +3,6 @@
  CustomGestureDemo
 
  A system that detects custom hand gestures and manages visual feedback.
-
- This system runs every frame and:
- 1. Detects gestures (spider web, peace sign) on both hands
- 2. Spawns/removes visualization entities (colored spheres above the wrist)
- 3. Tracks wrist velocity for throw detection
- 4. Manages launched projectile trajectories
- 5. Updates the AppModel with gesture states, finger curl ratios, and pinch states
- 6. Plays spatial feedback sounds on gesture activation and throw
 */
 
 import RealityKit
@@ -19,7 +11,6 @@ import QuartzCore
 import simd
 import SwiftUI
 
-/// A system that detects custom hand gestures and shows/hides visualization entities.
 struct GestureVisualizationSystem: System {
 
     // MARK: - Queries
@@ -27,11 +18,14 @@ struct GestureVisualizationSystem: System {
     static let handQuery = EntityQuery(where: .has(HandTrackingComponent.self))
     static let projectileQuery = EntityQuery(where: .has(ProjectileComponent.self))
 
-    // MARK: - App Model Bridge
+    // MARK: - Bridges
 
     nonisolated(unsafe) static var appModel: AppModel?
 
-    // MARK: - Previous Gesture State (for sound triggering)
+    /// Pre-loaded sphere.usdz model template. Set by HandTrackingView on appear.
+    nonisolated(unsafe) static var sphereTemplate: Entity?
+
+    // MARK: - Previous State (for sound — only fire once per gesture activation per hand)
 
     nonisolated(unsafe) static var prevLeftSpider = false
     nonisolated(unsafe) static var prevRightSpider = false
@@ -69,11 +63,11 @@ struct GestureVisualizationSystem: System {
                 continue
             }
 
-            // --- Detect gestures ---
+            // --- Detect gestures using math-based detectors ---
             let isSpider = SpiderGestureDetector.detect(handSkeleton: skeleton)
             let isPeace = PeaceGestureDetector.detect(handSkeleton: skeleton)
 
-            // --- Sound feedback on first activation ---
+            // --- Sound: only on first activation per hand ---
             let prevSpider = isLeft ? Self.prevLeftSpider : Self.prevRightSpider
             let prevPeace = isLeft ? Self.prevLeftPeace : Self.prevRightPeace
 
@@ -94,14 +88,15 @@ struct GestureVisualizationSystem: System {
 
             // --- Update app model ---
             updateGestureStates(isLeft: isLeft, spider: isSpider, peace: isPeace)
-            updateFingerStates(skeleton: skeleton, handAnchor: handAnchor, isLeft: isLeft)
+            updateFingerStates(skeleton: skeleton, isLeft: isLeft)
 
-            // --- Spider gesture: red energy sphere + throw ---
+            // --- Spider gesture: sphere + throw ---
             if isSpider {
                 addOrUpdateSphere(
                     on: entity, named: SpiderGestureDetector.entityName,
-                    color: .red, radius: 0.03,
-                    handAnchor: handAnchor, skeleton: skeleton
+                    color: .red,
+                    handAnchor: handAnchor, skeleton: skeleton,
+                    isLeft: isLeft
                 )
 
                 let wristPos = HandPoseUtilities.worldPosition(
@@ -122,61 +117,72 @@ struct GestureVisualizationSystem: System {
                 ThrowDetector.reset(isLeft: isLeft)
             }
 
-            // --- Peace gesture: green sphere ---
-            if isPeace {
-                addOrUpdateSphere(
-                    on: entity, named: PeaceGestureDetector.entityName,
-                    color: .green, radius: 0.025,
-                    handAnchor: handAnchor, skeleton: skeleton
-                )
-            } else {
-                removeVisualization(from: entity, named: PeaceGestureDetector.entityName)
-            }
+            // --- Peace gesture: detection only, no sphere ---
         }
     }
 
-    // MARK: - Sphere Visualization
+    // MARK: - Sphere Visualization (using sphere.usdz or generated fallback)
 
     private func addOrUpdateSphere(
         on handEntity: Entity,
         named name: String,
         color: UIColor,
-        radius: Float,
         handAnchor: HandAnchor,
-        skeleton: HandSkeleton
+        skeleton: HandSkeleton,
+        isLeft: Bool
     ) {
         let existing = handEntity.findEntity(named: name)
-        let sphere: ModelEntity
+        let sphere: Entity
 
-        if let s = existing as? ModelEntity {
+        if let s = existing {
             sphere = s
+        } else if let template = Self.sphereTemplate {
+            // Use the uploaded sphere.usdz model.
+            sphere = template.clone(recursive: true)
+            sphere.name = name
+            sphere.scale = SIMD3<Float>(repeating: 0.5)
+            handEntity.addChild(sphere)
         } else {
-            sphere = ModelEntity(
-                mesh: .generateSphere(radius: radius),
+            // Fallback: generated sphere if model not loaded yet.
+            let model = ModelEntity(
+                mesh: .generateSphere(radius: 0.03),
                 materials: [SimpleMaterial(color: color, isMetallic: true)]
             )
-            sphere.name = name
-            handEntity.addChild(sphere)
+            model.name = name
+            handEntity.addChild(model)
+            sphere = model
         }
 
-        // Position above the wrist using the wrist joint and its "up" (palm normal) direction.
-        let wristJoint = skeleton.joint(.wrist)
-        let originFromWrist = handAnchor.originFromAnchorTransform * wristJoint.anchorFromJointTransform
+        // --- Position: midpoint between joint 25 (forearmWrist) and joint 10 (middleFingerMetacarpal),
+        //     offset toward the INSIDE of the palm using a cross-product palm normal.
+        //
+        //     The cross product of (wrist→indexKnuckle) × (wrist→littleKnuckle) gives:
+        //       • For RIGHT hand: points toward the palm (inward)
+        //       • For LEFT hand:  points away from the palm (dorsal)
+        //     So we negate it for the left hand to get a consistent palm-inward direction. ---
 
-        let wristPos = SIMD3<Float>(
-            originFromWrist.columns.3.x,
-            originFromWrist.columns.3.y,
-            originFromWrist.columns.3.z
-        )
-        // The Y-axis of the wrist joint transform points away from the palm.
-        let palmNormal = simd_normalize(SIMD3<Float>(
-            originFromWrist.columns.1.x,
-            originFromWrist.columns.1.y,
-            originFromWrist.columns.1.z
-        ))
+        let pos25 = HandPoseUtilities.worldPosition(of: .forearmWrist, handAnchor: handAnchor, skeleton: skeleton)
+        let pos10 = HandPoseUtilities.worldPosition(of: .middleFingerMetacarpal, handAnchor: handAnchor, skeleton: skeleton)
+        let midpoint = (pos25 + pos10) / 2.0
 
-        // Offset 6 cm above the wrist along the palm normal.
-        sphere.setPosition(wristPos + palmNormal * 0.06, relativeTo: nil)
+        // Compute the palm normal from actual joint geometry (robust for both hands).
+        let wristPos = HandPoseUtilities.worldPosition(of: .wrist, handAnchor: handAnchor, skeleton: skeleton)
+        let indexKnucklePos = HandPoseUtilities.worldPosition(of: .indexFingerKnuckle, handAnchor: handAnchor, skeleton: skeleton)
+        let littleKnucklePos = HandPoseUtilities.worldPosition(of: .littleFingerKnuckle, handAnchor: handAnchor, skeleton: skeleton)
+
+        let toIndex = indexKnucklePos - wristPos
+        let toLittle = littleKnucklePos - wristPos
+        var palmInward = simd_normalize(simd_cross(toIndex, toLittle))
+
+        // Flip for left hand (cross product direction is mirrored).
+        if isLeft {
+            palmInward = -palmInward
+        }
+
+        // Offset 6 cm inward so the sphere floats clearly in front of the palm.
+        let position = midpoint + palmInward * 0.1
+
+        sphere.setPosition(position, relativeTo: nil)
     }
 
     private func removeVisualization(from entity: Entity, named name: String) {
@@ -186,7 +192,6 @@ struct GestureVisualizationSystem: System {
 
     private func clearVisualizations(from entity: Entity) {
         removeVisualization(from: entity, named: SpiderGestureDetector.entityName)
-        removeVisualization(from: entity, named: PeaceGestureDetector.entityName)
     }
 
     // MARK: - Projectile Launch
@@ -201,13 +206,19 @@ struct GestureVisualizationSystem: System {
         let worldPos = existing.position(relativeTo: nil)
         existing.removeFromParent()
 
-        let projectile = ModelEntity(
-            mesh: .generateSphere(radius: 0.03),
-            materials: [SimpleMaterial(color: color, isMetallic: true)]
-        )
+        let projectile: Entity
+        if let template = Self.sphereTemplate {
+            projectile = template.clone(recursive: true)
+            projectile.scale = SIMD3<Float>(repeating: 0.5)
+        } else {
+            projectile = ModelEntity(
+                mesh: .generateSphere(radius: 0.03),
+                materials: [SimpleMaterial(color: color, isMetallic: true)]
+            )
+        }
         projectile.position = worldPos
         projectile.components.set(ProjectileComponent(
-            velocity: velocity * 2.0,
+            velocity: velocity * 1.2,
             initialPosition: worldPos,
             startTime: CACurrentMediaTime()
         ))
@@ -240,7 +251,7 @@ struct GestureVisualizationSystem: System {
 
             let lifeFraction = elapsed / Float(comp.lifetime)
             let scale = max(0.1, 1.0 - lifeFraction * 0.8)
-            entity.scale = SIMD3<Float>(repeating: scale)
+            entity.scale = SIMD3<Float>(repeating: 0.5 * scale)
         }
     }
 
@@ -257,15 +268,12 @@ struct GestureVisualizationSystem: System {
         }
     }
 
-    private func updateFingerStates(skeleton: HandSkeleton, handAnchor: HandAnchor, isLeft: Bool) {
+    /// Updates finger states — NO sound here, just state updates.
+    private func updateFingerStates(skeleton: HandSkeleton, isLeft: Bool) {
         guard let model = Self.appModel else { return }
 
-        // Thumb uses palm-relative method.
         let thumbRatio = HandPoseUtilities.thumbCurlRatio(skeleton: skeleton)
-        let thumbCurled = thumbRatio < 0.75
-        let thumbExtended = thumbRatio > 0.95
 
-        // Other fingers use standard distance-ratio method.
         let fingerDefs: [(id: String, name: String, tip: HandSkeleton.JointName, knuckle: HandSkeleton.JointName)] = [
             ("index",  "Index",  .indexFingerTip,   .indexFingerKnuckle),
             ("middle", "Middle", .middleFingerTip,  .middleFingerKnuckle),
@@ -275,17 +283,14 @@ struct GestureVisualizationSystem: System {
 
         var states: [FingerInfo] = []
 
-        // Thumb entry
         states.append(FingerInfo(
-            id: "thumb",
-            name: "Thumb",
+            id: "thumb", name: "Thumb",
             curlRatio: thumbRatio,
-            isPinching: false, // Thumb doesn't pinch with itself
-            isExtended: thumbExtended,
-            isCurled: thumbCurled
+            isPinching: false,
+            isExtended: thumbRatio > 0.85,
+            isCurled: thumbRatio < 0.75
         ))
 
-        // Other fingers
         for finger in fingerDefs {
             let ratio = HandPoseUtilities.curlRatio(
                 skeleton: skeleton, tip: finger.tip, knuckle: finger.knuckle
@@ -294,18 +299,8 @@ struct GestureVisualizationSystem: System {
                 skeleton: skeleton, fingerTip: finger.tip
             )
 
-            // Play pinch sound on first detection.
-            if pinching {
-                let prevStates = isLeft ? model.leftFingerStates : model.rightFingerStates
-                if let prevFinger = prevStates.first(where: { $0.id == finger.id }),
-                   !prevFinger.isPinching {
-                    SoundManager.shared.playPinch()
-                }
-            }
-
             states.append(FingerInfo(
-                id: finger.id,
-                name: finger.name,
+                id: finger.id, name: finger.name,
                 curlRatio: ratio,
                 isPinching: pinching,
                 isExtended: ratio > 1.15,

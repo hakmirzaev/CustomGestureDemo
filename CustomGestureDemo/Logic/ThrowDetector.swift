@@ -41,10 +41,10 @@ enum ThrowDetector {
     private static let maxSamples = 15
 
     /// Minimum wrist speed (m/s) to classify as a throw.
-    private static let throwSpeedThreshold: Float = 1.5
+    private static let throwSpeedThreshold: Float = 1.0
 
     /// Minimum time between throws to prevent rapid-fire (seconds).
-    private static let cooldownDuration: Double = 0.5
+    private static let cooldownDuration: Double = 0.3
 
     /// Timestamps of last throw per hand.
     nonisolated(unsafe) private static var lastThrowTimeLeft: Double = 0

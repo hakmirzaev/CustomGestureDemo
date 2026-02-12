@@ -33,7 +33,7 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
 
                     Label("Peace Gesture", systemImage: "hand.raised")
-                    Text("Extend index + middle fingers, curl ring + little + thumb.")
+                    Text("Extend index + middle fingers with a V-shape, curl ring + little + thumb.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

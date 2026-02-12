@@ -33,6 +33,16 @@ struct HandTrackingView: View {
         .onChange(of: appModel.showJointSpheres) { _, newValue in
             HandTrackingSystem.showJointSpheres = newValue
         }
+        // Pre-load the sphere.usdz model on appear.
+        .task {
+            do {
+                let model = try await ModelEntity(named: "sphere")
+                GestureVisualizationSystem.sphereTemplate = model
+                print("Loaded sphere.usdz model successfully.")
+            } catch {
+                print("Could not load sphere.usdz: \(error). Using generated fallback.")
+            }
+        }
     }
 
     // MARK: - Entity Setup
@@ -40,12 +50,10 @@ struct HandTrackingView: View {
     /// Creates left and right hand entities with hand-tracking components.
     @MainActor
     private func makeHandEntities(in content: any RealityViewContentProtocol) {
-        // Add the left hand.
         let leftHand = Entity()
         leftHand.components.set(HandTrackingComponent(chirality: .left))
         content.add(leftHand)
 
-        // Add the right hand.
         let rightHand = Entity()
         rightHand.components.set(HandTrackingComponent(chirality: .right))
         content.add(rightHand)

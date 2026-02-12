@@ -1,0 +1,50 @@
+{
+  "metadata" : {
+    "author" : "Apple Vision Pro",
+    "description" : "Peace Sign",
+    "tags" : "Peace",
+    "title" : "Peace Sign",
+    "tool" : "Gesture Composer by nthState"
+  },
+  "poses" : [
+    {
+      "duration" : 0,
+      "rules" : [
+        {
+          "action" : "distance_less_than",
+          "description" : "Index Finger tips close",
+          "id" : "D51A57E6-3339-46B7-A37E-564A5CA3E31C",
+          "source" : "right.indexFingerTip",
+          "target" : "right.middleFingerTip",
+          "value" : 0.02
+        }
+      ]
+    },
+    {
+      "duration" : 0,
+      "rules" : [
+        {
+          "action" : "distance_less_than",
+          "description" : "Index Finger tips close",
+          "id" : "54DED520-9B95-464F-9411-27F90ACAD480",
+          "source" : "left.indexFingerTip",
+          "target" : "left.middleFingerTip",
+          "value" : 0.02
+        }
+      ]
+    },
+    {
+      "duration" : 0,
+      "rules" : [
+
+      ]
+    },
+    {
+      "duration" : 0,
+      "rules" : [
+
+      ]
+    }
+  ],
+  "version" : "1"
+}

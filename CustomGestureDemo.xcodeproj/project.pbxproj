@@ -7,10 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1F69F2182F3DF28C003145E1 /* GestureKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F69F2172F3DF28C003145E1 /* GestureKit */; };
+		1F69F21B2F3DF302003145E1 /* peace.gesturecomposer in Resources */ = {isa = PBXBuildFile; fileRef = 1F69F2192F3DF300003145E1 /* peace.gesturecomposer */; };
+		1F69F21C2F3DF303003145E1 /* spider.gesturecomposer in Resources */ = {isa = PBXBuildFile; fileRef = 1F69F21A2F3DF301003145E1 /* spider.gesturecomposer */; };
 		1FD3DDB82F3B2F0900460738 /* RealityKitContent in Frameworks */ = {isa = PBXBuildFile; productRef = 1FD3DDB72F3B2F0900460738 /* RealityKitContent */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1F69F2192F3DF300003145E1 /* peace.gesturecomposer */ = {isa = PBXFileReference; lastKnownFileType = folder; path = peace.gesturecomposer; sourceTree = "<group>"; };
+		1F69F21A2F3DF301003145E1 /* spider.gesturecomposer */ = {isa = PBXFileReference; lastKnownFileType = folder; path = spider.gesturecomposer; sourceTree = "<group>"; };
 		1FD3DDB22F3B2F0900460738 /* CustomGestureDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CustomGestureDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1FD3DDB62F3B2F0900460738 /* RealityKitContent */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = RealityKitContent; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -42,17 +47,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				1FD3DDB82F3B2F0900460738 /* RealityKitContent in Frameworks */,
+				1F69F2182F3DF28C003145E1 /* GestureKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1F69F21D2F3DF304003145E1 /* GestureResources */ = {
+			isa = PBXGroup;
+			children = (
+				1F69F2192F3DF300003145E1 /* peace.gesturecomposer */,
+				1F69F21A2F3DF301003145E1 /* spider.gesturecomposer */,
+			);
+			path = GestureResources;
+			sourceTree = "<group>";
+		};
 		1FD3DDA92F3B2F0900460738 = {
 			isa = PBXGroup;
 			children = (
 				1FD3DDB42F3B2F0900460738 /* CustomGestureDemo */,
 				1FD3DDB52F3B2F0900460738 /* Packages */,
+				1F69F21D2F3DF304003145E1 /* GestureResources */,
 				1FD3DDB32F3B2F0900460738 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -94,6 +110,7 @@
 			name = CustomGestureDemo;
 			packageProductDependencies = (
 				1FD3DDB72F3B2F0900460738 /* RealityKitContent */,
+				1F69F2172F3DF28C003145E1 /* GestureKit */,
 			);
 			productName = CustomGestureDemo;
 			productReference = 1FD3DDB22F3B2F0900460738 /* CustomGestureDemo.app */;
@@ -123,6 +140,9 @@
 			);
 			mainGroup = 1FD3DDA92F3B2F0900460738;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				1F69F2162F3DF28C003145E1 /* XCRemoteSwiftPackageReference "GestureKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1FD3DDB32F3B2F0900460738 /* Products */;
 			projectDirPath = "";
@@ -138,6 +158,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F69F21B2F3DF302003145E1 /* peace.gesturecomposer in Resources */,
+				1F69F21C2F3DF303003145E1 /* spider.gesturecomposer in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -165,6 +187,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "$(TARGET_NAME)/Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSHandsTrackingUsageDescription = "This app uses hand tracking to visualize hand joints and recognize custom hand gestures.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -194,6 +218,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "$(TARGET_NAME)/Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSHandsTrackingUsageDescription = "This app uses hand tracking to visualize hand joints and recognize custom hand gestures.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -356,7 +382,23 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		1F69F2162F3DF28C003145E1 /* XCRemoteSwiftPackageReference "GestureKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nthState/GestureKit";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		1F69F2172F3DF28C003145E1 /* GestureKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F69F2162F3DF28C003145E1 /* XCRemoteSwiftPackageReference "GestureKit" */;
+			productName = GestureKit;
+		};
 		1FD3DDB72F3B2F0900460738 /* RealityKitContent */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = RealityKitContent;

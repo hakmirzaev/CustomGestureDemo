@@ -10,7 +10,7 @@
    • Ring finger   — curled
    • Little finger  — curled
    • Thumb         — curled (tucked in, uses palm-relative detection)
-   • V-shape       — index and middle tips must be spread apart (≥ 2 cm)
+   • V-shape       — index and middle tips must be spread apart (≥ 4 cm)
 
  NOTE — GestureKit Integration:
  For production apps, consider using GestureKit (https://github.com/nthState/GestureKit)
@@ -26,7 +26,7 @@ enum PeaceGestureDetector {
     static let entityName = "peaceSphere"
 
     /// Minimum distance (meters) between index and middle tips for a valid V shape.
-    private static let minVShapeSpread: Float = 0.02
+    private static let minVShapeSpread: Float = 0.04
 
     // MARK: - Detection
 

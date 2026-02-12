@@ -29,7 +29,7 @@ struct ContentView: View {
                 // Header
                 VStack(spacing: 6) {
                     Text("Custom Gesture Demo")
-                        .font(.extraLargeTitle)
+                        .font(.largeTitle)
 
                     Text("Hand tracking & custom gestures for visionOS")
                         .font(.title3)
