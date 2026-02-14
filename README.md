@@ -3,7 +3,7 @@
 A visionOS app that detects custom hand gestures using **ARKit Hand Tracking** and simple math — no machine learning required.
 
 <!-- Add your screenshots to a screenshots/ folder -->
-![Demo](screenshots/hero.png)
+![Demo](screenshots/customGesture.gif)
 
 ## Overview
 
@@ -58,9 +58,9 @@ All thresholds are adjustable. The info button **(?)** in the Hand Status panel 
 
 | File | Content |
 |------|---------|
-| `hero.png` | Spider gesture with sphere on palm |
-| `main-window.png` | App window with gesture indicators and finger dashboard |
-| `settings.png` | Settings window alongside main window |
+| `spiderGesture.png` | Spider gesture with sphere on palm |
+| `window.png` | App window with gesture indicators and finger dashboard |
+| `pinchGesture.png` | Pinch gesture between thumb and other finger, check in finger dashboard |
 
 > Place your images in `screenshots/` at the project root.
 
