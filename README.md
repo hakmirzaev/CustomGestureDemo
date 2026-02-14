@@ -1,4 +1,4 @@
-# Custom Gesture Demo
+# Custom Gesture Demo in VisionOS
 
 A visionOS app that detects custom hand gestures using **ARKit Hand Tracking** and simple math — no machine learning required.
 
