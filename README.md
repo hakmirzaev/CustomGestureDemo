@@ -54,16 +54,6 @@ Instead of training ML models, gestures are detected by comparing joint position
 
 All thresholds are adjustable. The info button **(?)** in the Hand Status panel explains each measurement.
 
-## Screenshots
-
-| File | Content |
-|------|---------|
-| `spiderGesture.png` | Spider gesture with sphere on palm |
-| `window.png` | App window with gesture indicators and finger dashboard |
-| `pinchGesture.png` | Pinch gesture between thumb and other finger, check in finger dashboard |
-
-> Place your images in `screenshots/` at the project root.
-
 ## License
 
 MIT License — free to use and modify.
