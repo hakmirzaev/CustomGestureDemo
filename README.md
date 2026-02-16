@@ -32,7 +32,7 @@ Two custom gestures are implemented:
 
 1. Clone the repository
 2. Open `CustomGestureDemo.xcodeproj` in Xcode
-3. Run on Apple Vision Pro or Simulator
+3. Run on Apple Vision Pro
 4. Grant **Hand Tracking** permission when prompted
 5. Tap **Enter Immersive Space** and try the gestures
 
